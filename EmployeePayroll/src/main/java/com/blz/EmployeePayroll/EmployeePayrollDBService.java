@@ -21,7 +21,7 @@ public class EmployeePayrollDBService {
 
 	}
 
-	private Connection getConnection() throws SQLException {
+	public static Connection getConnection() throws SQLException {
 		String jdbcURL = "jdbc:mysql://localhost:3306/payroll_services?useSSl=false";
 		String userName = "root";
 		String password = "Pajusham";
@@ -52,7 +52,7 @@ public class EmployeePayrollDBService {
 
 	public Map<String, Double> getAggregateByGender(String gender, String aggregate, String sql) {
 		Map<String, Double> genderCountMap = new HashMap<>();
-		try (Connection connection = this.getConnection();) {
+		try (Connection connection = employeePayrollDBService.getConnection();) {
 			Statement statement = connection.createStatement();
 			ResultSet result = statement.executeQuery(sql);
 			while (result.next()) {
@@ -88,7 +88,7 @@ public class EmployeePayrollDBService {
 
 	private List<EmployeePayrollData> getEmployeePayrollDataUsingDB(String sql) throws PayrollServiceException {
 		List<EmployeePayrollData> employeePayrollList = new ArrayList<>();
-		try (Connection connection = this.getConnection();) {
+		try (Connection connection = employeePayrollDBService.getConnection();) {
 			Statement statement = connection.createStatement();
 			ResultSet result = statement.executeQuery(sql);
 			while (result.next()) {
@@ -147,9 +147,22 @@ public class EmployeePayrollDBService {
 
 	}
 
+	private List<EmployeePayrollData> getEmployeePayrollDataUsingQuery(String sql) {
+		List<EmployeePayrollData> employeePayrollList=null;
+		try (Connection connection = EmployeePayrollDBService.getConnection();){
+			PreparedStatement preparedStatement = connection.prepareStatement(sql);
+			ResultSet result=preparedStatement.executeQuery(sql);
+			employeePayrollList=this.getEmployeePayrollData(result);
+		}catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return employeePayrollList;
+	}
+
 	public List<EmployeePayrollData> readData() throws PayrollServiceException {
-		String sql = "select * from employee_payroll";
-		return this.getEmployeePayrollDataUsingDB(sql);
+		String sql = "select e.id,e.name,e.start,e.gender,e.salary, d.dept_name from employee_payroll e inner join "
+				+ "employee_department ed on e.id=ed.employee_id inner join department d on ed.dept_id=d.dept_id; ";
+		return this.getEmployeePayrollDataUsingQuery(sql);
 
 	}
 
@@ -189,7 +202,7 @@ public class EmployeePayrollDBService {
 		String sql = String.format(
 				"insert into employee_payroll (name,gender,salary,start)" + "values ('%s', '%s', '%s', '%s')", name,
 				gender, salary, Date.valueOf(startDate));
-		try (Connection connection = this.getConnection()) {
+		try (Connection connection = employeePayrollDataStatement.getConnection()) {
 			Statement statement = connection.createStatement();
 			int rowAffected = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
 			if (rowAffected == 1) {
@@ -200,52 +213,6 @@ public class EmployeePayrollDBService {
 			employeePayrollData = new EmployeePayrollData(employeeId, name, salary, startDate);
 		} catch (SQLException e) {
 			throw new PayrollServiceException(e.getMessage(), PayrollServiceException.ExceptionType.INSERTION_PROBLEM);
-		}
-		return employeePayrollData;
-	}
-
-	@SuppressWarnings("finally")
-	public EmployeePayrollData addEmployeeToPayroll(String name, double salary, LocalDate startDate, String gender)
-			throws PayrollServiceException {
-		int employeeId = -1;
-		Connection connection = null;
-		EmployeePayrollData employeePayrollData = null;
-		try {
-			connection = this.getConnection();
-		} catch (SQLException e) {
-			throw new PayrollServiceException(e.getMessage(),
-					PayrollServiceException.ExceptionType.CONNECTION_PROBLEM);
-		}
-		try (Statement statement = connection.createStatement()) {
-			String sql = String.format(
-					"insert into employee_payroll (name,gender,salary,start)" + "values ('%s', '%s', '%s', '%s')", name,
-					gender, salary, Date.valueOf(startDate));
-			int rowAffected = statement.executeUpdate(sql, statement.RETURN_GENERATED_KEYS);
-			if (rowAffected == 1) {
-				ResultSet resultSet = statement.getGeneratedKeys();
-				if (resultSet.next())
-					employeeId = resultSet.getInt(1);
-			}
-		} catch (SQLException e) {
-			throw new PayrollServiceException(e.getMessage(),
-					PayrollServiceException.ExceptionType.INSERTION_PROBLEM);
-		}
-
-		try (Statement statement = connection.createStatement()) {
-			double deductions = salary * 0.2;
-			double taxablePay = salary - deductions;
-			double tax = taxablePay * 0.1;
-			double netPay = salary - tax;
-			String sql = String.format(
-					"insert into payroll_details (employee_id, basic_pay, deductions, taxable_pay, tax, net_pay) values "
-							+ "('%s', '%s', '%s', '%s', '%s', '%s')",
-					employeeId, salary, deductions, taxablePay, tax, netPay);
-			int rowAffected = statement.executeUpdate(sql);
-			if (rowAffected == 1) {
-				employeePayrollData = new EmployeePayrollData(employeeId, name, salary, startDate);
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		return employeePayrollData;
 	}

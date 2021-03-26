@@ -8,6 +8,8 @@ public class EmployeePayrollData {
 	public String name;
 	public double salary;
 	public LocalDate start;
+	private String[] dept_name;
+	private char gender;
 	
 	/* Constructor */
 	public EmployeePayrollData(int id, String name, double salary) {
@@ -16,6 +18,13 @@ public class EmployeePayrollData {
 		this.salary = salary;
 	}
 
+	public EmployeePayrollData(int id, String name, double salary, LocalDate startDate, char gender, String[] dept_name) {
+		this(id, name, salary, startDate);
+		this.gender = gender;
+		this.dept_name = dept_name;
+	}
+
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -13,6 +13,7 @@ public class EmployeePayrollService {
 	}
 
 	private EmployeePayrollDBService employeePayrollDBService;
+	private EmployeePayrollDBServiceERD employeePayrollDBServiceERD;
 
 	/* Welcome Message */
 	public void printWelcomeMessage() {
@@ -28,6 +29,7 @@ public class EmployeePayrollService {
 
 	public EmployeePayrollService() {
 		employeePayrollDBService = EmployeePayrollDBService.getInstance();
+		employeePayrollDBServiceERD = EmployeePayrollDBServiceERD.getInstance();
 	}
 
 	public static void main(String[] args) {
@@ -49,7 +51,7 @@ public class EmployeePayrollService {
 	}
 	
 	public void addEmployeeToPayroll(String name, double salary, LocalDate startDate, String gender) throws PayrollServiceException {
-		employeePayrollList.add(employeePayrollDBService.addEmployeeToPayroll(name, salary, startDate, gender));
+		employeePayrollList.add(employeePayrollDBServiceERD.addEmployeeToPayroll(name, salary, startDate, gender));
 	}
 
 
