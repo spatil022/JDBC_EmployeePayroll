@@ -52,7 +52,7 @@ public class EmployeePayrollServiceTest {
 	public void givenEmployeePayrollinDB_whenRetrieved_ShouldMatch_Employee_Count() throws PayrollServiceException {
 		List<EmployeePayrollData> employeePayrollData = employeePayrollService
 				.readEmployeePayrollData(EmployeePayrollService.IOService.DB_IO);
-		Assert.assertEquals(3, employeePayrollData.size());
+		Assert.assertEquals(6, employeePayrollData.size());
 	}
 
 	@Test
@@ -72,7 +72,7 @@ public class EmployeePayrollServiceTest {
 		LocalDate endDate = LocalDate.now();
 		List<EmployeePayrollData> employeePayrollData = employeePayrollService
 				.readEmployeePayrollForDateRange(IOService.DB_IO, startDate, endDate);
-		Assert.assertEquals(4, employeePayrollData.size());
+		Assert.assertEquals(6, employeePayrollData.size());
 	}
 
 	@Test
@@ -80,14 +80,14 @@ public class EmployeePayrollServiceTest {
 			throws PayrollServiceException {
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
 		Map<String, Double> averageSalaryByGender = employeePayrollService.readAverageSalaryByGender(IOService.DB_IO);
-		Assert.assertTrue(averageSalaryByGender.get("M").equals(3000000.00) && averageSalaryByGender.get("F").equals(3000000.00));
+		Assert.assertTrue(averageSalaryByGender.get("M").equals(3800000.00) && averageSalaryByGender.get("F").equals(3000000.00));
 	}
 
-//	@Test
-//	public void givenNewEmployee_whenAddedShouldSyncWithTheDatabase() throws PayrollServiceException {
-//		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
-//		employeePayrollService.addEmployeeToPayroll("Mark", 5000000.00, LocalDate.now(), "M");
-//		boolean result = employeePayrollService.checkEmployeePayrollInSyncWithDB("Mark");
-//		Assert.assertTrue(result);
-//	}
+	@Test
+	public void givenNewEmployee_whenAddedShouldSyncWithTheDatabase() throws PayrollServiceException {
+		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
+		employeePayrollService.addEmployeeToPayroll("Ansh", 5000000.00, LocalDate.now(), "M");
+		boolean result = employeePayrollService.checkEmployeePayrollInSyncWithDB("Ansh");
+		Assert.assertTrue(result);
+	}
 }
