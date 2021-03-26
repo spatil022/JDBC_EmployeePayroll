@@ -2,7 +2,7 @@ package com.blz.EmployeePayroll;
 
 public class PayrollServiceException extends Exception{
 	enum ExceptionType{
-		CONNECTION_PROBLEM, RETRIEVAL_PROBLEM; 
+		CONNECTION_PROBLEM, RETRIEVAL_PROBLEM, UPDATE_PROBLEM; 
 	}
 	
 	ExceptionType type;
