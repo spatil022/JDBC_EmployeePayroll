@@ -47,6 +47,11 @@ public class EmployeePayrollService {
 		double salary = consoleInputReader.nextDouble();
 		employeePayrollList.add(new EmployeePayrollData(id, name, salary));
 	}
+	
+	public void addEmployeeToPayroll(String name, double salary, LocalDate startDate, String gender) throws PayrollServiceException {
+		employeePayrollList.add(employeePayrollDBService.addEmployeeToPayroll(name, salary, startDate, gender));
+	}
+
 
 	/* Write Employee Payroll data to console */
 	public void writeEmployeePayrollData(IOService ioService) {
@@ -56,7 +61,7 @@ public class EmployeePayrollService {
 			new EmployeePayrollFileIOService().writeData(employeePayrollList);
 		}
 	}
-
+	
 	/* Print Employee Payroll */
 	public void printData(IOService fileIo) {
 		if (fileIo.equals(IOService.FILE_IO)) {
@@ -109,7 +114,7 @@ public class EmployeePayrollService {
 
 	public List<EmployeePayrollData> readEmployeePayrollForDateRange(IOService ioService, LocalDate startDate,
 			LocalDate endDate) throws PayrollServiceException {
-		if(ioService.equals(IOService.DB_IO))
+		if (ioService.equals(IOService.DB_IO))
 			return employeePayrollDBService.getEmployeeForDateRange(startDate, endDate);
 		return null;
 	}

@@ -1,6 +1,5 @@
 package com.blz.EmployeePayroll;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -40,9 +39,11 @@ public class EmployeePayrollServiceTest {
 		Assert.assertEquals(3, entries);
 	}
 
+	
 	@Test
 	public void givenFileOnReadingFileShouldMatchEmployeeCount() {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		@SuppressWarnings("unused")
 		List<EmployeePayrollData> entries = employeePayrollService
 				.readPayrollData(EmployeePayrollService.IOService.FILE_IO);
 	}
@@ -56,6 +57,7 @@ public class EmployeePayrollServiceTest {
 
 	@Test
 	public void givenNewSalaryForEmployee_WhenUpdated_shouldSynchronizewithDataBase() throws PayrollServiceException {
+		
 		List<EmployeePayrollData> employeePayrollData = employeePayrollService
 				.readEmployeePayrollData(EmployeePayrollService.IOService.DB_IO);
 		employeePayrollService.updateEmployeeSalary("Teresa", 3000000.00);
