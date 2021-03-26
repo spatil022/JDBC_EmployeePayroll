@@ -1,5 +1,6 @@
 package com.blz.EmployeePayroll;
 
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -39,13 +40,12 @@ public class EmployeePayrollServiceTest {
 		Assert.assertEquals(3, entries);
 	}
 
-	
 	@Test
 	public void givenFileOnReadingFileShouldMatchEmployeeCount() {
 		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
-		@SuppressWarnings("unused")
 		List<EmployeePayrollData> entries = employeePayrollService
 				.readPayrollData(EmployeePayrollService.IOService.FILE_IO);
+		
 	}
 
 	@Test
@@ -57,7 +57,6 @@ public class EmployeePayrollServiceTest {
 
 	@Test
 	public void givenNewSalaryForEmployee_WhenUpdated_shouldSynchronizewithDataBase() throws PayrollServiceException {
-		
 		List<EmployeePayrollData> employeePayrollData = employeePayrollService
 				.readEmployeePayrollData(EmployeePayrollService.IOService.DB_IO);
 		employeePayrollService.updateEmployeeSalary("Teresa", 3000000.00);
@@ -73,7 +72,7 @@ public class EmployeePayrollServiceTest {
 		LocalDate endDate = LocalDate.now();
 		List<EmployeePayrollData> employeePayrollData = employeePayrollService
 				.readEmployeePayrollForDateRange(IOService.DB_IO, startDate, endDate);
-		Assert.assertEquals(3, employeePayrollData.size());
+		Assert.assertEquals(4, employeePayrollData.size());
 	}
 
 	@Test
@@ -81,38 +80,14 @@ public class EmployeePayrollServiceTest {
 			throws PayrollServiceException {
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
 		Map<String, Double> averageSalaryByGender = employeePayrollService.readAverageSalaryByGender(IOService.DB_IO);
-		Assert.assertTrue(averageSalaryByGender.get("M").equals(2000000.00) && averageSalaryByGender.get("F").equals(3000000.00));
+		Assert.assertTrue(averageSalaryByGender.get("M").equals(3000000.00) && averageSalaryByGender.get("F").equals(3000000.00));
 	}
-	
+
 	@Test
-	public void givenPayrollData_whenAverageSalaryRetrievedByGender_shouldReturnProperCountValue()
-			throws PayrollServiceException {
+	public void givenNewEmployee_whenAddedShouldSyncWithTheDatabase() throws PayrollServiceException {
 		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
-		Map<String, Double> countByGender = employeePayrollService.readCountByGender(IOService.DB_IO);
-		Assert.assertTrue(countByGender.get("M").equals(2.0) && countByGender.get("F").equals(1.0));
-	}
-	
-	@Test
-	public void givenPayrollData_whenAverageSalaryRetrievedByGender_shouldReturnProperMinimumValue()
-			throws PayrollServiceException {
-		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
-		Map<String, Double> countByGender = employeePayrollService.readMinumumSalaryByGender(IOService.DB_IO);
-		Assert.assertTrue(countByGender.get("M").equals(1000000.00) && countByGender.get("F").equals(3000000.00));
-	}
-	
-	@Test
-	public void givenPayrollData_whenAverageSalaryRetrievedByGender_shouldReturnProperMaximumValue()
-			throws PayrollServiceException {
-		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
-		Map<String, Double> countByGender = employeePayrollService.readMaximumSalaryByGender(IOService.DB_IO);
-		Assert.assertTrue(countByGender.get("M").equals(3000000.00) && countByGender.get("F").equals(3000000.00));
-	}
-	
-	@Test
-	public void givenPayrollData_whenAverageSalaryRetrievedByGender_shouldReturnProperSumValue()
-			throws PayrollServiceException {
-		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
-		Map<String, Double> sumSalaryByGender = employeePayrollService.readSumSalaryByGender(IOService.DB_IO);
-		Assert.assertTrue(sumSalaryByGender.get("M").equals(4000000.00) && sumSalaryByGender.get("F").equals(3000000.00));
+		employeePayrollService.addEmployeeToPayroll("Mark", 5000000.00, LocalDate.now(), "M");
+		boolean result = employeePayrollService.checkEmployeePayrollInSyncWithDB("Mark");
+		Assert.assertTrue(result);
 	}
 }
