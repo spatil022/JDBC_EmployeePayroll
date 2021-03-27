@@ -13,7 +13,6 @@ import org.junit.Test;
 import com.blz.EmployeePayroll.EmployeePayrollService.IOService;
 
 
-
 public class EmployeePayrollServiceTest {
 	static EmployeePayrollService employeePayrollService;
 
@@ -89,5 +88,16 @@ public class EmployeePayrollServiceTest {
 		employeePayrollService.addEmployeeToPayroll("Ansh", 5000000.00, LocalDate.now(), "M");
 		boolean result = employeePayrollService.checkEmployeePayrollInSyncWithDB("Ansh");
 		Assert.assertTrue(result);
+	}
+	
+	@Test
+	public void givenEmployeeWhenRemoved_ShouldRemainInDatabase() throws PayrollServiceException {
+		EmployeePayrollService employeePayrollService = new EmployeePayrollService();
+		employeePayrollService.readEmployeePayrollData(IOService.DB_IO);
+		int countOfEmployeeRemoved = employeePayrollService.removeEmployeeFromPayroll("Mark", IOService.DB_IO);
+		Assert.assertEquals(2, countOfEmployeeRemoved);
+		List<EmployeePayrollData> employeePayrollData = employeePayrollService
+				.readActiveEmployeePayrollData(IOService.DB_IO);
+		Assert.assertEquals(4, employeePayrollData.size());
 	}
 }

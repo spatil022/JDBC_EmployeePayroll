@@ -42,8 +42,9 @@ public class EmployeePayrollDBService {
 			throws PayrollServiceException {
 //		String sql = String.format("select * from employee_payroll where start between '%s' and '%s';",
 //				Date.valueOf(startDate), Date.valueOf(endDate));
-		String sql = String.format("SELECT e.id,e.name,e.start,e.gender,e.salary, d.dept_name from employee_payroll e inner join "
-				+ "employee_department ed on e.id=ed.employee_id inner join department d on ed.dept_id=d.dept_id where start between '%s' AND '%s';",
+		String sql = String.format(
+				"SELECT e.id,e.name,e.start,e.gender,e.salary, d.dept_name from employee_payroll e inner join "
+						+ "employee_department ed on e.id=ed.employee_id inner join department d on ed.dept_id=d.dept_id where start between '%s' AND '%s';",
 				Date.valueOf(startDate), Date.valueOf(endDate));
 		return this.getEmployeePayrollDataUsingDB(sql);
 	}
@@ -124,18 +125,19 @@ public class EmployeePayrollDBService {
 
 	private List<EmployeePayrollData> getEmployeePayrollData(ResultSet result) {
 		List<EmployeePayrollData> employeePayrollList = new ArrayList<>();
-		List<String> departmentName=new ArrayList<>();
+		List<String> departmentName = new ArrayList<>();
 		try {
 			while (result.next()) {
 				int id = result.getInt("id");
 				String name = result.getString("name");
 				Double salary = result.getDouble("salary");
 				LocalDate startDate = result.getDate("start").toLocalDate();
-				char gender=result.getString("gender").charAt(0);
-				String dept=result.getString("dept_name");
+				char gender = result.getString("gender").charAt(0);
+				String dept = result.getString("dept_name");
 				departmentName.add(dept);
-				String[] deptArray=new String[departmentName.size()];
-				employeePayrollList.add(new EmployeePayrollData(id, name, salary, startDate,gender,departmentName.toArray(deptArray)));
+				String[] deptArray = new String[departmentName.size()];
+				employeePayrollList.add(new EmployeePayrollData(id, name, salary, startDate, gender,
+						departmentName.toArray(deptArray)));
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -162,17 +164,17 @@ public class EmployeePayrollDBService {
 	}
 
 	private List<EmployeePayrollData> getEmployeePayrollDataUsingQuery(String sql) {
-		List<EmployeePayrollData> employeePayrollList=null;
-		try (Connection connection = EmployeePayrollDBService.getConnection();){
+		List<EmployeePayrollData> employeePayrollList = null;
+		try (Connection connection = EmployeePayrollDBService.getConnection();) {
 			PreparedStatement preparedStatement = connection.prepareStatement(sql);
-			ResultSet result=preparedStatement.executeQuery(sql);
-			employeePayrollList=this.getEmployeePayrollData(result);
-		}catch (SQLException e) {
+			ResultSet result = preparedStatement.executeQuery(sql);
+			employeePayrollList = this.getEmployeePayrollData(result);
+		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 		return employeePayrollList;
 	}
-	
+
 	public int updateEmployeeData(String name, double salary) throws PayrollServiceException {
 		return this.updateEmployeeDataUsingPreparedStatement(name, salary);
 	}
@@ -202,7 +204,7 @@ public class EmployeePayrollDBService {
 		return 0;
 	}
 
-	public EmployeePayrollData addEmployeeToPayrollUC7(String name, double salary, LocalDate startDate, String gender)
+	public EmployeePayrollData addEmployeeToPayroll(String name, double salary, LocalDate startDate, String gender)
 			throws PayrollServiceException {
 		int employeeId = -1;
 		EmployeePayrollData employeePayrollData = null;
@@ -222,5 +224,11 @@ public class EmployeePayrollDBService {
 			throw new PayrollServiceException(e.getMessage(), PayrollServiceException.ExceptionType.INSERTION_PROBLEM);
 		}
 		return employeePayrollData;
+	}
+	
+	public List<EmployeePayrollData> readActiveEmployeeData() {
+		String sql = "select e.id,e.name,e.start,e.gender,e.salary, d.dept_name from employee_payroll e inner join"
+				+ " employee_department ed on e.id=ed.employee_id inner join department d on ed.dept_id=d.dept_id where is_active=true ;";
+		return this.getEmployeePayrollDataUsingQuery(sql);
 	}
 }
